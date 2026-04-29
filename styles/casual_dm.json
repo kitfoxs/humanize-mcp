@@ -1,0 +1,25 @@
+{
+  "name": "casual_dm",
+  "description": "Direct messaging / texting register. Heavy contractions, fragments common, autocorrect-style typos OK, very informal. Aggressive removal of formal connectives.",
+  "target_register": "casual",
+  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8],
+  "pass_configs": {
+    "pass_01_em_dash": {
+      "replacement_strategy": "comma"
+    },
+    "pass_05_contractions": {
+      "density": 1.0
+    },
+    "pass_07_punctuation": {}
+  },
+  "allowed_filler": [
+    "honestly", "lol", "tbh", "lowkey", "ngl", "fr", "kinda",
+    "I mean", "literally", "look", "yeah"
+  ],
+  "allowed_openers": [
+    "honestly,", "yeah,", "ok so", "I mean,", "lol", "look,"
+  ],
+  "avoid_filler": ["arguably", "broadly speaking"],
+  "preserve_em_dashes": false,
+  "preserve_oxford_comma": false
+}

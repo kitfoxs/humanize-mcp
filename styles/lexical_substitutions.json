@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "description": "Master substitution table for pass 02 (LexicalPass). Each entry maps an over-used AI marker word to a list of register-appropriate alternatives. Entries are scored on the same 1-5 severity scale used in the tells detector. Source: research/02 sections A.1, A.2, A.3, A.4.",
+  "entries": [
+    {
+      "pattern": "delve into",
+      "severity": 5,
+      "alternatives": ["explore", "look at", "dig into", "examine", "study"],
+      "max_per_paragraph": 2,
+      "context_tags": ["academic", "general"]
+    },
+    {
+      "pattern": "delve",
+      "severity": 5,
+      "alternatives": ["explore", "examine", "dig", "look", "study"],
+      "max_per_paragraph": 1,
+      "context_tags": ["academic", "general"]
+    },
+    {
+      "pattern": "delving",
+      "severity": 5,
+      "alternatives": ["exploring", "examining", "digging into", "looking at", "studying"]
+    },
+    {
+      "pattern": "delved",
+      "severity": 5,
+      "alternatives": ["explored", "examined", "dug into", "studied"]
+    },
+    {
+      "pattern": "intricate",
+      "severity": 5,
+      "alternatives": ["complex", "detailed", "tangled", "knotty", "involved"],
+      "max_per_paragraph": 1
+    },
+    {
+      "pattern": "intricacies",
+      "severity": 5,
+      "alternatives": ["details", "complexities", "fine points", "subtleties"]
+    },
+    {
+      "pattern": "underscore",
+      "severity": 4,
+      "alternatives": ["highlight", "emphasize", "stress", "show"],
+      "context_tags": ["general"]
+    },
+    {
+      "pattern": "underscores",
+      "severity": 4,
+      "alternatives": ["highlights", "emphasizes", "stresses", "shows"]
+    },
+    {
+      "pattern": "underscoring",
+      "severity": 4,
+      "alternatives": ["highlighting", "emphasizing", "showing"]
+    },
+    {
+      "pattern": "tapestry",
+      "severity": 4,
+      "alternatives": ["mix", "range", "patchwork", "fabric", "set"],
+      "max_per_paragraph": 1
+    },
+    {
+      "pattern": "meticulous",
+      "severity": 4,
+      "alternatives": ["careful", "thorough", "precise", "exacting"]
+    },
+    {
+      "pattern": "meticulously",
+      "severity": 4,
+      "alternatives": ["carefully", "thoroughly", "precisely"]
+    },
+    {
+      "pattern": "leverage",
+      "severity": 4,
+      "alternatives": ["use", "apply", "draw on", "make use of", "tap"]
+    },
+    {
+      "pattern": "leveraging",
+      "severity": 4,
+      "alternatives": ["using", "applying", "drawing on", "tapping"]
+    },
+    {
+      "pattern": "navigate",
+      "severity": 4,
+      "alternatives": ["work through", "handle", "manage", "get through", "deal with"]
+    },
+    {
+      "pattern": "navigating",
+      "severity": 4,
+      "alternatives": ["working through", "handling", "managing", "dealing with"]
+    },
+    {
+      "pattern": "realm",
+      "severity": 4,
+      "alternatives": ["area", "field", "world", "space", "domain"]
+    },
+    {
+      "pattern": "realms",
+      "severity": 4,
+      "alternatives": ["areas", "fields", "worlds", "spaces"]
+    },
+    {
+      "pattern": "pivotal",
+      "severity": 4,
+      "alternatives": ["key", "central", "decisive", "critical", "important"]
+    },
+    {
+      "pattern": "paramount",
+      "severity": 4,
+      "alternatives": ["central", "most important", "critical", "essential"]
+    },
+    {
+      "pattern": "nuanced",
+      "severity": 3,
+      "alternatives": ["subtle", "careful", "detailed", "specific"]
+    },
+    {
+      "pattern": "nuances",
+      "severity": 3,
+      "alternatives": ["details", "subtleties", "shades", "fine points"]
+    },
+    {
+      "pattern": "multifaceted",
+      "severity": 3,
+      "alternatives": ["complex", "many-sided", "varied", "broad"]
+    },
+    {
+      "pattern": "holistic",
+      "severity": 3,
+      "alternatives": ["broad", "complete", "integrated", "full"]
+    },
+    {
+      "pattern": "robust",
+      "severity": 3,
+      "alternatives": ["strong", "solid", "sturdy", "reliable", "tough"],
+      "context_tags": ["general", "technical_safe"]
+    },
+    {
+      "pattern": "comprehensive",
+      "severity": 3,
+      "alternatives": ["thorough", "broad", "full", "complete", "wide"]
+    },
+    {
+      "pattern": "crucial",
+      "severity": 3,
+      "alternatives": ["important", "key", "central", "critical"]
+    },
+    {
+      "pattern": "crucially",
+      "severity": 3,
+      "alternatives": ["importantly", "and key here is that", "and this matters"]
+    },
+    {
+      "pattern": "seamless",
+      "severity": 3,
+      "alternatives": ["smooth", "easy", "fluid", "uninterrupted"]
+    },
+    {
+      "pattern": "seamlessly",
+      "severity": 3,
+      "alternatives": ["smoothly", "easily", "fluidly", "without friction"]
+    },
+    {
+      "pattern": "garner",
+      "severity": 3,
+      "alternatives": ["gather", "earn", "win", "attract", "collect"]
+    },
+    {
+      "pattern": "garnered",
+      "severity": 3,
+      "alternatives": ["earned", "drew", "attracted", "won", "collected"]
+    },
+    {
+      "pattern": "foster",
+      "severity": 3,
+      "alternatives": ["build", "support", "encourage", "grow", "help"]
+    },
+    {
+      "pattern": "fosters",
+      "severity": 3,
+      "alternatives": ["builds", "supports", "encourages", "grows", "helps"]
+    },
+    {
+      "pattern": "fostering",
+      "severity": 3,
+      "alternatives": ["building", "supporting", "encouraging", "growing"]
+    },
+    {
+      "pattern": "testament",
+      "severity": 3,
+      "alternatives": ["proof", "sign", "mark", "evidence"]
+    },
+    {
+      "pattern": "myriad",
+      "severity": 3,
+      "alternatives": ["many", "lots of", "a wide range of", "countless"]
+    },
+    {
+      "pattern": "plethora",
+      "severity": 3,
+      "alternatives": ["lots of", "many", "a flood of", "a heap of"]
+    },
+    {
+      "pattern": "paradigm",
+      "severity": 2,
+      "alternatives": ["model", "approach", "way of thinking", "framework"]
+    },
+    {
+      "pattern": "facet",
+      "severity": 2,
+      "alternatives": ["side", "aspect", "angle", "part"]
+    },
+    {
+      "pattern": "facets",
+      "severity": 2,
+      "alternatives": ["sides", "aspects", "angles", "parts"]
+    },
+    {
+      "pattern": "harness",
+      "severity": 3,
+      "alternatives": ["use", "tap", "draw on", "channel", "make use of"]
+    },
+    {
+      "pattern": "cutting-edge",
+      "severity": 2,
+      "alternatives": ["new", "recent", "current", "leading"]
+    },
+    {
+      "pattern": "groundbreaking",
+      "severity": 3,
+      "alternatives": ["new", "novel", "important", "significant"]
+    },
+    {
+      "pattern": "transformative",
+      "severity": 3,
+      "alternatives": ["significant", "important", "big", "substantial"]
+    },
+    {
+      "pattern": "revolutionary",
+      "severity": 3,
+      "alternatives": ["new", "big", "significant", "different"]
+    },
+    {
+      "pattern": "unprecedented",
+      "severity": 3,
+      "alternatives": ["new", "rare", "first-of-its-kind", "uncommon"]
+    },
+    {
+      "pattern": "fascinating",
+      "severity": 3,
+      "alternatives": ["interesting", "striking", "notable", "curious"]
+    },
+    {
+      "pattern": "intriguing",
+      "severity": 3,
+      "alternatives": ["interesting", "curious", "puzzling", "noteworthy"]
+    },
+    {
+      "pattern": "compelling",
+      "severity": 3,
+      "alternatives": ["convincing", "strong", "persuasive", "good"]
+    },
+    {
+      "pattern": "captivating",
+      "severity": 3,
+      "alternatives": ["interesting", "engaging", "absorbing"]
+    },
+    {
+      "pattern": "remarkable",
+      "severity": 3,
+      "alternatives": ["notable", "striking", "unusual", "significant"]
+    },
+    {
+      "pattern": "profound",
+      "severity": 3,
+      "alternatives": ["deep", "significant", "serious", "lasting"]
+    },
+    {
+      "pattern": "striking",
+      "severity": 2,
+      "alternatives": ["notable", "obvious", "clear", "stark"]
+    },
+    {
+      "pattern": "essential",
+      "severity": 3,
+      "alternatives": ["needed", "key", "core", "necessary"]
+    },
+    {
+      "pattern": "vital",
+      "severity": 3,
+      "alternatives": ["needed", "key", "important", "central"]
+    },
+    {
+      "pattern": "Moreover",
+      "severity": 4,
+      "alternatives": ["Also", "And", "Plus", "On top of that"]
+    },
+    {
+      "pattern": "moreover",
+      "severity": 4,
+      "alternatives": ["also", "and", "plus"]
+    },
+    {
+      "pattern": "Furthermore",
+      "severity": 4,
+      "alternatives": ["Also", "And", "Beyond that"]
+    },
+    {
+      "pattern": "furthermore",
+      "severity": 4,
+      "alternatives": ["also", "and", "beyond that"]
+    },
+    {
+      "pattern": "Additionally",
+      "severity": 4,
+      "alternatives": ["Also", "And", "Plus"]
+    },
+    {
+      "pattern": "additionally",
+      "severity": 4,
+      "alternatives": ["also", "and", "plus"]
+    },
+    {
+      "pattern": "Consequently",
+      "severity": 3,
+      "alternatives": ["So", "As a result", "That meant"]
+    },
+    {
+      "pattern": "consequently",
+      "severity": 3,
+      "alternatives": ["so", "as a result"]
+    },
+    {
+      "pattern": "Therefore",
+      "severity": 3,
+      "alternatives": ["So", "Which means"]
+    },
+    {
+      "pattern": "therefore",
+      "severity": 3,
+      "alternatives": ["so", "which means"]
+    },
+    {
+      "pattern": "Ultimately",
+      "severity": 3,
+      "alternatives": ["In the end", "Finally", "Eventually"]
+    },
+    {
+      "pattern": "ultimately",
+      "severity": 3,
+      "alternatives": ["in the end", "finally", "eventually"]
+    },
+    {
+      "pattern": "utilize",
+      "severity": 3,
+      "alternatives": ["use"]
+    },
+    {
+      "pattern": "Utilize",
+      "severity": 3,
+      "alternatives": ["Use"]
+    },
+    {
+      "pattern": "utilizing",
+      "severity": 3,
+      "alternatives": ["using"]
+    },
+    {
+      "pattern": "demonstrate",
+      "severity": 2,
+      "alternatives": ["show", "prove", "make clear"]
+    },
+    {
+      "pattern": "demonstrates",
+      "severity": 2,
+      "alternatives": ["shows", "proves"]
+    },
+    {
+      "pattern": "showcase",
+      "severity": 2,
+      "alternatives": ["show", "feature", "display"]
+    },
+    {
+      "pattern": "showcases",
+      "severity": 2,
+      "alternatives": ["shows", "features", "displays"]
+    },
+    {
+      "pattern": "embark",
+      "severity": 4,
+      "alternatives": ["start", "begin", "set out"]
+    },
+    {
+      "pattern": "embarking",
+      "severity": 4,
+      "alternatives": ["starting", "beginning", "setting out"]
+    },
+    {
+      "pattern": "endeavor",
+      "severity": 3,
+      "alternatives": ["effort", "attempt", "work", "try"]
+    },
+    {
+      "pattern": "endeavors",
+      "severity": 3,
+      "alternatives": ["efforts", "attempts", "tries"]
+    },
+    {
+      "pattern": "facilitate",
+      "severity": 3,
+      "alternatives": ["help", "make easier", "support", "enable"]
+    },
+    {
+      "pattern": "facilitates",
+      "severity": 3,
+      "alternatives": ["helps", "supports", "makes easier"]
+    },
+    {
+      "pattern": "elevate",
+      "severity": 3,
+      "alternatives": ["raise", "lift", "improve", "boost"]
+    },
+    {
+      "pattern": "elevates",
+      "severity": 3,
+      "alternatives": ["raises", "lifts", "improves"]
+    },
+    {
+      "pattern": "ensure",
+      "severity": 2,
+      "alternatives": ["make sure", "see that", "guarantee"]
+    },
+    {
+      "pattern": "ensures",
+      "severity": 2,
+      "alternatives": ["makes sure", "guarantees"]
+    }
+  ]
+}

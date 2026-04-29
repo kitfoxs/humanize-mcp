@@ -1,0 +1,30 @@
+{
+  "name": "reddit",
+  "description": "Reddit comment style. Casual register, heavy contractions, sentence fragments OK, no em dashes, slang and lowered formality allowed.",
+  "target_register": "casual",
+  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "pass_configs": {
+    "pass_01_em_dash": {
+      "replacement_strategy": "auto"
+    },
+    "pass_05_contractions": {
+      "density": 0.95
+    },
+    "pass_07_punctuation": {},
+    "pass_09_paraphrase": {
+      "mode": "light"
+    }
+  },
+  "allowed_filler": [
+    "honestly", "tbh", "lowkey", "kinda", "fwiw",
+    "I mean", "like", "ngl", "imo", "look",
+    "yeah", "ok so", "real talk"
+  ],
+  "allowed_openers": [
+    "honestly,", "look,", "tbh,", "ok so", "I mean,",
+    "yeah,", "real talk,"
+  ],
+  "avoid_filler": ["arguably", "to a first approximation"],
+  "preserve_em_dashes": false,
+  "preserve_oxford_comma": false
+}

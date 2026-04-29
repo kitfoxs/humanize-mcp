@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humanize-mcp"
+version = "0.1.0"
+description = "Open-source MCP server that rewrites AI-generated prose as human-authored, with explicit support for neurodivergent, ESL, and academic voice."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Kit Olivas", email = "kit@example.invalid" },
+]
+maintainers = [
+    { name = "Kit Olivas", email = "kit@example.invalid" },
+]
+keywords = [
+    "mcp",
+    "model-context-protocol",
+    "ai-detection",
+    "humanizer",
+    "accessibility",
+    "esl",
+    "neurodivergent",
+    "fastmcp",
+    "nlp",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastmcp>=0.4",
+    "transformers>=4.46",
+    "torch>=2.5",
+    "huggingface_hub>=0.26",
+    "numpy>=1.26",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+    "black>=24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kitfoxs/humanize-mcp"
+Repository = "https://github.com/kitfoxs/humanize-mcp"
+Issues = "https://github.com/kitfoxs/humanize-mcp/issues"
+Documentation = "https://github.com/kitfoxs/humanize-mcp/tree/main/docs"
+
+[project.scripts]
+humanize-mcp = "server:main"
+
+[tool.setuptools]
+# Single-file server module plus the sibling packages.
+py-modules = ["server"]
+
+[tool.setuptools.packages.find]
+include = ["pipelines*", "styles*", "benchmark*"]
+exclude = ["tests*", "research*", "docs*", ".venv*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311", "py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning:transformers.*",
+    "ignore::FutureWarning:huggingface_hub.*",
+]
