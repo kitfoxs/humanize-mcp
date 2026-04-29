@@ -2,7 +2,17 @@
   "name": "academic_human",
   "description": "Preserves formal register but breaks parallel structures, removes the heaviest delve-cluster vocabulary, adds appropriate hedges (the data appear to suggest), keeps Oxford comma. Em dashes converted to commas or parens. Voice injection is restricted to academic-appropriate hedges only.",
   "target_register": "academic",
-  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "passes_enabled": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "auto"
@@ -15,8 +25,11 @@
     "pass_07_punctuation": {},
     "pass_09_paraphrase": {
       "mode": "light",
-      "mode_by_intensity": {"aggressive": "heavy"},
-      "similarity_threshold": 0.9
+      "mode_by_intensity": {
+        "aggressive": "heavy"
+      },
+      "similarity_threshold": 0.78,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {
@@ -31,11 +44,24 @@
     }
   },
   "allowed_filler": [
-    "arguably", "broadly speaking", "to a first approximation",
-    "in this view", "the data appear to suggest"
+    "arguably",
+    "broadly speaking",
+    "to a first approximation",
+    "in this view",
+    "the data appear to suggest"
   ],
-  "allowed_openers": ["arguably,", "broadly speaking,"],
-  "avoid_filler": ["lowkey", "tbh", "fr", "ngl", "honestly", "kinda"],
+  "allowed_openers": [
+    "arguably,",
+    "broadly speaking,"
+  ],
+  "avoid_filler": [
+    "lowkey",
+    "tbh",
+    "fr",
+    "ngl",
+    "honestly",
+    "kinda"
+  ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": true
 }

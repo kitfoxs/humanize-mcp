@@ -2,7 +2,13 @@
   "name": "esl_friendly",
   "description": "Preserves the simpler syntax characteristic of L2 English writers. Removes detection signals (em dashes, the strongest delve-cluster words, conversational scaffolding) without changing register or attempting to vary syntactic complexity. Voice injection disabled (would feel inauthentic to a non-native writer's natural register). See research/03 section 1.",
   "target_register": "neutral",
-  "passes_enabled": [1, 2, 5, 7, 9],
+  "passes_enabled": [
+    1,
+    2,
+    5,
+    7,
+    9
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "comma"
@@ -12,7 +18,9 @@
       "density": 0.3
     },
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {
@@ -29,8 +37,15 @@
   "allowed_filler": [],
   "allowed_openers": [],
   "avoid_filler": [
-    "honestly", "tbh", "lowkey", "fr", "ngl",
-    "kinda", "I mean", "look", "lol"
+    "honestly",
+    "tbh",
+    "lowkey",
+    "fr",
+    "ngl",
+    "kinda",
+    "I mean",
+    "look",
+    "lol"
   ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": true

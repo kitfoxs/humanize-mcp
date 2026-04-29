@@ -2,7 +2,13 @@
   "name": "creative_fiction",
   "description": "Novelist / short-story writer. Em dashes ARE allowed (legitimate stylistic choice in fiction; preserve_em_dashes is true). Focuses on reducing AI signal in narrative passages without flattening prose style. Light contractions appropriate to dialogue and free indirect speech. Voice injection disabled to avoid breaking the narrator's voice.",
   "target_register": "neutral",
-  "passes_enabled": [2, 3, 4, 5, 9],
+  "passes_enabled": [
+    2,
+    3,
+    4,
+    5,
+    9
+  ],
   "pass_configs": {
     "pass_02_lexical": {},
     "pass_03_structural": {},
@@ -11,20 +17,40 @@
       "density": 0.5
     },
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {
     "intricate": {
-      "alternatives": ["complex", "tangled", "knotty", "elaborate", "ornate"]
+      "alternatives": [
+        "complex",
+        "tangled",
+        "knotty",
+        "elaborate",
+        "ornate"
+      ]
     },
     "tapestry": {
-      "alternatives": ["weave", "patchwork", "fabric", "mosaic"]
+      "alternatives": [
+        "weave",
+        "patchwork",
+        "fabric",
+        "mosaic"
+      ]
     }
   },
   "allowed_filler": [],
   "allowed_openers": [],
-  "avoid_filler": ["lol", "tbh", "lowkey", "fr", "ngl", "kinda"],
+  "avoid_filler": [
+    "lol",
+    "tbh",
+    "lowkey",
+    "fr",
+    "ngl",
+    "kinda"
+  ],
   "preserve_em_dashes": true,
   "preserve_oxford_comma": true
 }

@@ -2,7 +2,12 @@
   "name": "autistic_friendly",
   "description": "Preserves the precise, repetitive, concrete vocabulary characteristic of much autistic prose. Does NOT add casual filler that would feel inauthentic. Does NOT vary lexical choices arbitrarily (the writer chose those words on purpose). Removes only high-confidence detection signals: em dashes, conversational scaffolding, the most-flagged delve-cluster words. See research/03 section 2.",
   "target_register": "neutral",
-  "passes_enabled": [1, 2, 7, 9],
+  "passes_enabled": [
+    1,
+    2,
+    7,
+    9
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "auto"
@@ -10,7 +15,9 @@
     "pass_02_lexical": {},
     "pass_07_punctuation": {},
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {
@@ -33,8 +40,17 @@
   "allowed_filler": [],
   "allowed_openers": [],
   "avoid_filler": [
-    "honestly", "tbh", "lowkey", "fr", "ngl", "kinda",
-    "I mean", "look", "lol", "yeah", "yknow"
+    "honestly",
+    "tbh",
+    "lowkey",
+    "fr",
+    "ngl",
+    "kinda",
+    "I mean",
+    "look",
+    "lol",
+    "yeah",
+    "yknow"
   ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": true

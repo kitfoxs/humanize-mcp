@@ -2,7 +2,16 @@
   "name": "twitter",
   "description": "Twitter / X consciousness. Even more casual than Reddit; lowercase often acceptable; brevity prized; em dashes stripped aggressively; Oxford comma usually dropped.",
   "target_register": "casual",
-  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8],
+  "passes_enabled": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "comma"
@@ -10,14 +19,36 @@
     "pass_05_contractions": {
       "density": 1.0
     },
-    "pass_07_punctuation": {}
+    "pass_07_punctuation": {},
+    "pass_09_paraphrase": {
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
+    }
   },
   "allowed_filler": [
-    "honestly", "tbh", "lowkey", "ngl", "fr", "imo",
-    "kinda", "literally", "no like", "real"
+    "honestly",
+    "tbh",
+    "lowkey",
+    "ngl",
+    "fr",
+    "imo",
+    "kinda",
+    "literally",
+    "no like",
+    "real"
   ],
-  "allowed_openers": ["honestly,", "tbh", "ok so", "no like,", "fr,"],
-  "avoid_filler": ["arguably", "broadly speaking", "to a first approximation"],
+  "allowed_openers": [
+    "honestly,",
+    "tbh",
+    "ok so",
+    "no like,",
+    "fr,"
+  ],
+  "avoid_filler": [
+    "arguably",
+    "broadly speaking",
+    "to a first approximation"
+  ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": false
 }

@@ -2,7 +2,17 @@
   "name": "base",
   "description": "Default style schema. All other presets inherit from this and override individual keys. Conservative balanced defaults; no style-specific tuning.",
   "target_register": "neutral",
-  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "passes_enabled": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "auto"
@@ -17,12 +27,23 @@
     "pass_07_punctuation": {},
     "pass_08_register_shift": {},
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {},
-  "allowed_filler": ["honestly", "to be fair", "for what it's worth", "I think"],
-  "allowed_openers": ["honestly,", "to be fair,", "I think"],
+  "allowed_filler": [
+    "honestly",
+    "to be fair",
+    "for what it's worth",
+    "I think"
+  ],
+  "allowed_openers": [
+    "honestly,",
+    "to be fair,",
+    "I think"
+  ],
   "avoid_filler": [],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": null

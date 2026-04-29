@@ -1,5 +1,8 @@
 # HumanizeMCP
 
+> **v0.2.1 (current):** ``humanize()`` now defaults to ``iterate=True`` so single-call output runs one round of detector-guided paragraph swap. Live demo on real Claude prose: heuristic AI-prob 59.6% → 6.7% (single call, ~10s on M-series Mac). Pass ``iterate=False`` for the deterministic v0.1.x fast path.
+
+
 > An open-source Model Context Protocol server that rewrites AI-generated prose as human-authored, with first-class support for the writers detectors get wrong.
 
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)

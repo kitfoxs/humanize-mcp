@@ -2,7 +2,17 @@
   "name": "linkedin",
   "description": "Professional but human. Short paragraphs. Strips corporate AI-speak (leverage, synergize, paradigm) hard. Modest contractions. No em dashes. Oxford comma optional.",
   "target_register": "neutral",
-  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "passes_enabled": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
   "pass_configs": {
     "pass_01_em_dash": {
       "replacement_strategy": "auto"
@@ -13,33 +23,63 @@
     },
     "pass_07_punctuation": {},
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "lexical_substitutions": {
     "leverage": {
       "severity": 5,
-      "alternatives": ["use", "apply", "draw on"]
+      "alternatives": [
+        "use",
+        "apply",
+        "draw on"
+      ]
     },
     "synergy": {
       "severity": 5,
-      "alternatives": ["fit", "alignment", "overlap"]
+      "alternatives": [
+        "fit",
+        "alignment",
+        "overlap"
+      ]
     },
     "synergies": {
       "severity": 5,
-      "alternatives": ["overlaps", "alignments"]
+      "alternatives": [
+        "overlaps",
+        "alignments"
+      ]
     },
     "stakeholders": {
       "severity": 3,
-      "alternatives": ["the people involved", "everyone affected", "partners"]
+      "alternatives": [
+        "the people involved",
+        "everyone affected",
+        "partners"
+      ]
     }
   },
   "allowed_filler": [
-    "honestly", "to be candid", "in my experience",
-    "for what it's worth", "I think"
+    "honestly",
+    "to be candid",
+    "in my experience",
+    "for what it's worth",
+    "I think"
   ],
-  "allowed_openers": ["honestly,", "in my experience,", "I think"],
-  "avoid_filler": ["lowkey", "fr", "ngl", "lol", "kinda"],
+  "allowed_openers": [
+    "honestly,",
+    "in my experience,",
+    "I think"
+  ],
+  "avoid_filler": [
+    "lowkey",
+    "fr",
+    "ngl",
+    "lol",
+    "kinda"
+  ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": null
 }

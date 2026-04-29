@@ -2,23 +2,50 @@
   "name": "blog",
   "description": "Personal blog / substack voice. Conversational but coherent. Short paragraphs, personal voice, occasional asides. The default for medium-length expository writing.",
   "target_register": "neutral",
-  "passes_enabled": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "passes_enabled": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
   "pass_configs": {
     "pass_05_contractions": {
       "density": 0.75
     },
     "pass_09_paraphrase": {
       "mode": "light",
-      "mode_by_intensity": {"aggressive": "heavy"},
-      "similarity_threshold": 0.85
+      "mode_by_intensity": {
+        "aggressive": "heavy"
+      },
+      "similarity_threshold": 0.72,
+      "default_candidates": 5
     }
   },
   "allowed_filler": [
-    "honestly", "to be fair", "for what it's worth",
-    "I think", "I mean", "look", "fwiw"
+    "honestly",
+    "to be fair",
+    "for what it's worth",
+    "I think",
+    "I mean",
+    "look",
+    "fwiw"
   ],
-  "allowed_openers": ["honestly,", "to be fair,", "I think", "look,"],
-  "avoid_filler": ["lowkey", "fr", "ngl"],
+  "allowed_openers": [
+    "honestly,",
+    "to be fair,",
+    "I think",
+    "look,"
+  ],
+  "avoid_filler": [
+    "lowkey",
+    "fr",
+    "ngl"
+  ],
   "preserve_em_dashes": false,
   "preserve_oxford_comma": null
 }
