@@ -88,7 +88,14 @@ def test_no_unexpected_tools_are_registered() -> None:
         ("list_styles", set()),
         (
             "humanize_and_verify",
-            {"text", "style", "target_ai_score", "max_iterations"},
+            {
+                "text",
+                "style",
+                "target_ai_score",
+                "max_iterations",
+                "target_detector",
+                "candidates_per_iteration",
+            },
         ),
     ],
 )

@@ -199,3 +199,57 @@ The MVP (passes 1-4) should run end-to-end on a 500-word input in under 200ms on
 FastMCP handles request multiplexing. Within a single `humanize` call, passes run sequentially (the next pass depends on the previous pass's output). Inside passes that batch over paragraphs, internal parallelism is allowed; the orchestrator does not parallelize across passes for the same input.
 
 For long-running calls (full pipeline with paraphrase passes) the server uses FastMCP's `Context` to stream progress events back to the client.
+
+## 10. Detector-guided iterative humanization (v0.2.0, Bet 3)
+
+The `humanize_and_verify` MCP tool is no longer a thin wrapper over a deterministic ramp loop. As of v0.2.0 it dispatches to `pipelines.IterativeHumanizer`, which implements the Cheng et al. 2025 algorithm (see `research/04_humanization_techniques.md` section 1.3).
+
+### Why the v0.1.x loop did not work
+
+`docs/REVIEW_v0.1.0.md` section 2.9 documents the failure mode: the v0.1 loop ran the same deterministic 9-pass pipeline at progressively higher intensities (0.5, 0.7, 0.9). Every pass except 9-heavy is idempotent on its own output, so iterations 2-3 produced zero-change runs. The "verification" loop was, in practice, just `humanize()` plus extra latency.
+
+A loop can only converge on a lower detector score if the candidate generator is *non-deterministic*. The Cheng et al. 2025 prescription is to generate N stochastic paraphrase candidates per iteration, score each, and keep the lowest. That is what `IterativeHumanizer` does.
+
+### The algorithm
+
+```mermaid
+flowchart TD
+    A[Input text] --> B[Base humanize]
+    B --> C{Score <= target?}
+    C -->|Yes| D[Return]
+    C -->|No| E[Find worst paragraph]
+    E --> F[Generate N candidates]
+    F --> G[Score each candidate]
+    G --> H[Pick lowest-scoring]
+    H --> I{Improves on original?}
+    I -->|No| D
+    I -->|Yes| J[Replace paragraph]
+    J --> K[Re-score whole text]
+    K --> C
+```
+
+In words:
+
+1. Run the base 9-pass pipeline at `aggressive` intensity. This handles all the surface tells (em dashes, lexical swaps, contractions, rhythm).
+2. Score the result against the configured detector. If at or below `target_ai_score`, return.
+3. Otherwise, score each paragraph individually. Pick the paragraph with the highest AI probability.
+4. Ask `ParaphrasePass.paraphrase_candidates(text, n=N, seed=...)` for N stochastic variants of that paragraph.
+5. Score each candidate. Keep the lowest-scoring one. If no candidate beats the original paragraph score, stop (further iteration is just noise).
+6. Splice the winning candidate into the text in place of the worst paragraph. Re-score the whole text.
+7. If the new whole-text score is at or below `target_ai_score`, return. Otherwise repeat from step 3, up to `max_iterations` times.
+
+### Per-iteration cost budget
+
+The orchestrator targets a soft 30-second budget per iteration on a 5-paragraph essay. Cost dominates in step 4 (heavy paraphrase) and step 5 (per-candidate detector scoring). When the budget is exceeded the loop logs a warning and continues; it does not abort, so the caller always gets a result.
+
+### Detector targeting
+
+`humanize_and_verify(target_detector="trusted_mean")` (the default) optimizes against the `BenchmarkSuite.trusted_mean_ai_probability` aggregate, which excludes detectors with documented bias caveats (see `benchmark/benchmark_suite.py`). `target_detector="raw_mean"` optimizes against the unweighted mean. Any other value is treated as a specific detector name (e.g. `"roberta_openai"`).
+
+This is the lever that lets a downstream tool say "I want this to slip past Pangram specifically" rather than averaging across an ensemble that may push other scores up. Section 3.4 of `docs/REVIEW_v0.1.0.md` warned that ensembles can disagree; `target_detector` makes that tradeoff explicit.
+
+### Graceful degradation
+
+If `ParaphrasePass.paraphrase_candidates` is missing at runtime (e.g. a stub install where Bet 1 has not yet shipped), the iterative humanizer falls back to a single deterministic light paraphrase per iteration. The loop will then exit on its "no improvement" check rather than crash. The `notes` field of `IterativeResult` records the fallback so callers can see what happened.
+
+If the `BenchmarkSuite` cannot be built (no detector backend installed), the loop returns the baseline humanization with `iterations=0` and a `notes` entry explaining the situation. The `humanize_and_verify` MCP tool layers a second fallback on top: if the iterative path raises for any reason, it falls back to the v0.1 deterministic ramp loop so the tool is never broken end to end.

@@ -155,7 +155,13 @@ class HumanityReport(BaseModel):
 
 
 class VerifyResult(BaseModel):
-    """The full output of :func:`humanize_and_verify`."""
+    """The full output of :func:`humanize_and_verify`.
+
+    v0.2.0: extended with the per-iteration trace fields produced by the
+    detector-guided iterative loop (``IterativeHumanizer``). The original
+    fields remain to keep existing clients working; the new fields are
+    optional with safe defaults so older clients can ignore them.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -166,6 +172,33 @@ class VerifyResult(BaseModel):
     final_score: HumanityReport
     target_reached: bool
     notes: list[str] = Field(default_factory=list)
+
+    # v0.2.0 additions: surface of the Cheng et al. 2025 loop.
+    target_detector: str = Field(
+        default="trusted_mean",
+        description=(
+            "Which detector field the loop optimized against. One of "
+            '"trusted_mean", "raw_mean", or a specific detector name.'
+        ),
+    )
+    candidates_per_iteration: int = Field(
+        default=1,
+        description=(
+            "How many stochastic paraphrase candidates were generated per "
+            "iteration. 1 reduces the loop to deterministic paraphrasing."
+        ),
+    )
+    per_iteration_scores: list[float] = Field(
+        default_factory=list,
+        description=(
+            "Whole-text AI probability after iteration 0 (baseline) then "
+            "after each accepted improvement. Empty if scoring was unavailable."
+        ),
+    )
+    total_time_ms: int = Field(
+        default=0,
+        description="Total wall-clock time including baseline humanization.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -590,18 +623,31 @@ def list_styles() -> list[str]:
 @mcp.tool
 def humanize_and_verify(
     text: str,
-    style: str = "default",
+    style: str = "blog",
     target_ai_score: float = 0.3,
     max_iterations: int = 3,
+    target_detector: str = "trusted_mean",
+    candidates_per_iteration: int = 3,
 ) -> VerifyResult:
     """Humanize, then iterate against detectors until a target score is met.
 
-    Implements a thin wrapper around the detector-guided iterative
-    paraphrasing loop described in ``research/06_implementation_recommendations.md``,
-    pass 6. On each iteration the text is rehumanized with progressively
-    higher intensity. The loop exits when the aggregate detector score
-    drops below ``target_ai_score`` or ``max_iterations`` is reached,
-    whichever comes first.
+    v0.2.0 (Bet 3): wraps :class:`pipelines.IterativeHumanizer`, which
+    implements the Cheng et al. 2025 detector-guided loop (research/04
+    section 1.3). Each iteration:
+
+    1. Locates the worst-scoring paragraph in the current text.
+    2. Generates ``candidates_per_iteration`` stochastic paraphrase
+       candidates of that paragraph (via ``ParaphrasePass.paraphrase_candidates``).
+    3. Scores each candidate, keeps the lowest, splices it back in.
+    4. Re-scores the whole text. If at or below ``target_ai_score``, returns.
+
+    This replaces the v0.1.0 loop, which re-ran the *deterministic* 9-pass
+    pipeline at ramped intensities. As documented in
+    ``docs/REVIEW_v0.1.0.md`` section 2.9, every pass except 9-heavy is
+    idempotent on its own output, so iterations 2-3 of the old loop did no
+    work. The new loop is meaningfully different because it depends on
+    *stochastic* candidate generation: only non-deterministic search can
+    converge on a lower score after a deterministic fixed point.
 
     The function always returns a result, even if the target was not
     reached; callers should check ``target_reached`` to know.
@@ -610,59 +656,169 @@ def humanize_and_verify(
     ----------
     text : str
         The input prose to humanize.
-    style : str, default "default"
+    style : str, default "blog"
         Name of a style preset; see :func:`list_styles`.
     target_ai_score : float, default 0.3
         The aggregate probability_ai value below which the loop exits.
-        Must be in [0, 1]. The default 0.3 matches the "comfortably human"
-        threshold used in the literature.
+        Must be in [0, 1]. Cheng et al. 2025 use 0.15 as their stop value;
+        we keep 0.3 ("comfortably human") as the default for backwards
+        compatibility with v0.1.x callers.
     max_iterations : int, default 3
-        Hard upper bound on rehumanization rounds. Must be >= 1.
+        Hard upper bound on improvement iterations. Must be >= 1.
+        Iteration 0 is always the baseline humanization and does not
+        count against this bound.
+    target_detector : str, default "trusted_mean"
+        Which detector field the loop optimizes against.
+        ``"trusted_mean"`` (default) uses the suite's mean over detectors
+        without documented bias caveats. ``"raw_mean"`` uses the unweighted
+        mean across all detectors. Any other value is treated as a
+        specific detector name (e.g. ``"roberta_openai"``).
+    candidates_per_iteration : int, default 3
+        How many stochastic paraphrase candidates to generate per
+        iteration. The Cheng et al. 2025 paper uses 3-5; we default to 3
+        as a quality / latency tradeoff. Must be >= 1.
 
     Returns
     -------
     VerifyResult
-        Final text, iteration count, before/after scores, and whether the
-        target was reached.
+        Final text, iteration count, before/after scores, per-iteration
+        score trace, and ``target_reached``. The ``notes`` field carries
+        a human-readable trace for debugging.
     """
     if not 0.0 <= target_ai_score <= 1.0:
         raise ValueError("target_ai_score must be in [0.0, 1.0]")
     if max_iterations < 1:
         raise ValueError("max_iterations must be >= 1")
+    if candidates_per_iteration < 1:
+        raise ValueError("candidates_per_iteration must be >= 1")
 
+    # We always populate `initial_score` with the legacy detector report so
+    # the response schema is preserved for v0.1.x clients. The iterative
+    # loop has its own (richer) scoring backed by BenchmarkSuite, so even
+    # when `score_humanity` returns "unknown" (e.g. roberta-base unavailable)
+    # the loop can still operate against the heuristic detector suite.
     initial = score_humanity(text)
-    if initial.aggregate_probability_ai < 0.0:
-        # Detection unavailable; do a single best-effort humanize pass
-        # and report what we know.
-        humanized = humanize(text, style=style, intensity=0.7)
-        final = score_humanity(humanized)
-        return VerifyResult(
-            text=humanized,
-            iterations=1,
+
+    # Build (or reuse) the iterative humanizer. We cache it on the module
+    # so the BenchmarkSuite's lazy-loaded models stay warm across calls
+    # within the same server process.
+    pipelines_pkg = _try_import("pipelines")
+    if pipelines_pkg is None or not hasattr(pipelines_pkg, "IterativeHumanizer"):
+        # Fall back to the v0.1.x deterministic ramp loop. This keeps the
+        # tool functional in environments where the pipelines package is a
+        # stub or stale install.
+        logger.warning(
+            "pipelines.IterativeHumanizer not found; falling back to v0.1 "
+            "deterministic ramp loop."
+        )
+        return _v01_fallback_verify(
+            text,
+            style=style,
             target_ai_score=target_ai_score,
-            initial_score=initial,
-            final_score=final,
-            target_reached=False,
-            notes=["scoring unavailable; ran one humanize pass without verification"],
+            max_iterations=max_iterations,
+            initial=initial,
+            target_detector=target_detector,
+            candidates_per_iteration=candidates_per_iteration,
         )
 
-    if initial.aggregate_probability_ai <= target_ai_score:
-        return VerifyResult(
-            text=text,
-            iterations=0,
+    try:
+        humanizer = _get_iterative_humanizer(pipelines_pkg)
+        result = humanizer.humanize_and_verify(
+            text,
+            style=style,
             target_ai_score=target_ai_score,
-            initial_score=initial,
-            final_score=initial,
-            target_reached=True,
-            notes=["input already below target; no rewrite needed"],
+            max_iterations=max_iterations,
+            candidates_per_iteration=candidates_per_iteration,
+            target_detector=target_detector,
+        )
+    except Exception as exc:
+        logger.exception("iterative humanize_and_verify failed: %s", exc)
+        return _v01_fallback_verify(
+            text,
+            style=style,
+            target_ai_score=target_ai_score,
+            max_iterations=max_iterations,
+            initial=initial,
+            target_detector=target_detector,
+            candidates_per_iteration=candidates_per_iteration,
+            extra_note=f"iterative loop crashed: {exc}; fell back to ramp loop",
         )
 
+    final = score_humanity(result.text)
+
+    # If the legacy initial score was unavailable but the iterative loop
+    # produced its own score trace, surface that on the report so the user
+    # can see the iteration progress regardless of which detector backend
+    # is configured.
+    notes = list(result.notes)
+    if initial.aggregate_probability_ai < 0.0 and result.per_iteration_scores:
+        notes.insert(
+            0,
+            (
+                "score_humanity backend unavailable; per_iteration_scores "
+                "below come from the BenchmarkSuite heuristic detectors used "
+                "by the iterative loop."
+            ),
+        )
+
+    return VerifyResult(
+        text=result.text,
+        iterations=result.iterations,
+        target_ai_score=target_ai_score,
+        initial_score=initial,
+        final_score=final,
+        target_reached=result.target_reached,
+        notes=notes,
+        target_detector=result.target_detector,
+        candidates_per_iteration=result.candidates_per_iteration,
+        per_iteration_scores=list(result.per_iteration_scores),
+        total_time_ms=result.total_time_ms,
+    )
+
+
+# Module-level cache for the iterative humanizer. Reuse keeps the
+# BenchmarkSuite's lazy-loaded detector models warm across tool calls
+# within the same server process.
+_ITERATIVE_HUMANIZER_CACHE: dict[str, Any] = {}
+
+
+def _get_iterative_humanizer(pipelines_pkg: Any) -> Any:
+    """Build (or return cached) IterativeHumanizer with the default pipeline."""
+    cache_key = "default"
+    cached = _ITERATIVE_HUMANIZER_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    pipeline = pipelines_pkg.HumanizationPipeline()
+    humanizer = pipelines_pkg.IterativeHumanizer(pipeline)
+    _ITERATIVE_HUMANIZER_CACHE[cache_key] = humanizer
+    return humanizer
+
+
+def _v01_fallback_verify(
+    text: str,
+    *,
+    style: str,
+    target_ai_score: float,
+    max_iterations: int,
+    initial: HumanityReport,
+    target_detector: str,
+    candidates_per_iteration: int,
+    extra_note: str | None = None,
+) -> VerifyResult:
+    """The v0.1.x deterministic ramp loop, kept as a fallback path.
+
+    Used when ``pipelines.IterativeHumanizer`` cannot be imported (stub
+    install) or when the iterative loop crashes for an environmental
+    reason. Documented in section 2.9 of the v0.1.0 review as essentially
+    a no-op for iterations 2-3, but it is better than crashing.
+    """
     notes: list[str] = []
+    if extra_note:
+        notes.append(extra_note)
     current_text = text
     current_score = initial
 
     for i in range(1, max_iterations + 1):
-        # Ramp intensity across iterations: 0.5, 0.7, 0.9, ...
         intensity = min(0.5 + 0.2 * (i - 1), 1.0)
         try:
             current_text = humanize(
@@ -693,6 +849,10 @@ def humanize_and_verify(
                 final_score=current_score,
                 target_reached=True,
                 notes=notes,
+                target_detector=target_detector,
+                candidates_per_iteration=candidates_per_iteration,
+                per_iteration_scores=[],
+                total_time_ms=0,
             )
 
     return VerifyResult(
@@ -703,6 +863,10 @@ def humanize_and_verify(
         final_score=current_score,
         target_reached=False,
         notes=notes,
+        target_detector=target_detector,
+        candidates_per_iteration=candidates_per_iteration,
+        per_iteration_scores=[],
+        total_time_ms=0,
     )
 
 

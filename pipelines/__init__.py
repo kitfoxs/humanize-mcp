@@ -27,6 +27,7 @@ from .pass_06_voice_injection import VoiceInjectionPass
 from .pass_07_punctuation import PunctuationPass
 from .pass_08_register_shift import RegisterShiftPass
 from .pass_09_paraphrase import ParaphrasePass
+from .iterative import IterativeHumanizer, IterativeResult
 from .tells_detector import (
     Tell,
     TellPattern,
@@ -50,6 +51,8 @@ __all__ = [
     "PunctuationPass",
     "RegisterShiftPass",
     "ParaphrasePass",
+    "IterativeHumanizer",
+    "IterativeResult",
     "Tell",
     "TellPattern",
     "TellsDetector",
