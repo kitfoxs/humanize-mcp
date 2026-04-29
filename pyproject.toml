@@ -10,10 +10,10 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "Kit Olivas", email = "kit@example.invalid" },
+    { name = "Kit (kitfoxs)", email = "noreply@github.com" },
 ]
 maintainers = [
-    { name = "Kit Olivas", email = "kit@example.invalid" },
+    { name = "Kit (kitfoxs)", email = "noreply@github.com" },
 ]
 keywords = [
     "mcp",

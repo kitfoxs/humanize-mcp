@@ -113,3 +113,4 @@ logs/
 # Local secrets and config
 *.local
 .envrc
+*.technical-backup
