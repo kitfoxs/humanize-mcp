@@ -1,0 +1,18 @@
+# Optional dependencies for the heavy paraphrase pass (pass 9, mode="heavy").
+#
+# These are not pulled in by `pip install humanize-mcp` because they bring
+# tens to hundreds of megabytes of model weights and several gigabytes of
+# transitive dependencies. Install them only if you want to run the heavy
+# paraphrase backend (DIPPER-style sentence-level rewrite + semantic drift
+# gate). The light path uses none of these.
+#
+#   pip install -r requirements-heavy.txt
+#
+# First run will download:
+#   * humarin/chatgpt_paraphraser_on_T5_base   (~250 MB)
+#   * sentence-transformers/all-MiniLM-L6-v2   (~80 MB)
+# into the standard HF cache (~/.cache/huggingface). Subsequent runs reuse
+# the cache.
+
+sentence-transformers>=2.7
+accelerate>=0.30

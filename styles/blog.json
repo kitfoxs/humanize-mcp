@@ -8,7 +8,9 @@
       "density": 0.75
     },
     "pass_09_paraphrase": {
-      "mode": "light"
+      "mode": "light",
+      "mode_by_intensity": {"aggressive": "heavy"},
+      "similarity_threshold": 0.85
     }
   },
   "allowed_filler": [

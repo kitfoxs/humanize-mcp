@@ -86,7 +86,10 @@ target-version = ["py311", "py312"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not heavy'"
+markers = [
+    "heavy: integration tests that download the real T5 paraphrase model (~250MB). Run with `pytest -m heavy`.",
+]
 filterwarnings = [
     "ignore::DeprecationWarning:transformers.*",
     "ignore::FutureWarning:huggingface_hub.*",
