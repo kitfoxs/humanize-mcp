@@ -430,6 +430,51 @@ class IterativeHumanizer:
         return -1.0
 
     @staticmethod
+    def _call_candidates(
+        cands_method: Any,
+        paragraph: str,
+        n: int,
+        seed: int,
+        style: str,
+    ) -> list[str]:
+        """Invoke ``paraphrase_candidates`` across the two known signatures.
+
+        The brief specified ``paraphrase_candidates(text, n=N, **kwargs)``
+        but the shipped Bet 1 implementation uses
+        ``paraphrase_candidates(text, n=N, config=None)``. We probe via
+        :mod:`inspect` so either signature works without a brittle
+        try/except cascade. Tests use ``**kwargs``; production uses
+        ``config``.
+        """
+        import inspect
+
+        try:
+            sig = inspect.signature(cands_method)
+            params = sig.parameters
+        except (TypeError, ValueError):
+            params = {}  # type: ignore[assignment]
+
+        try:
+            if "config" in params:
+                # Bet 1 production signature.
+                return cands_method(
+                    paragraph,
+                    n=n,
+                    config={"seed": seed, "style": style, "intensity": "aggressive"},
+                )
+            accepts_var_kw = any(
+                p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()
+            )
+            if accepts_var_kw:
+                # Brief signature / test mock signature.
+                return cands_method(paragraph, n=n, seed=seed, style=style)
+            # Conservative: only pass what we know fits.
+            return cands_method(paragraph, n=n)
+        except Exception as exc:
+            logger.warning("paraphrase_candidates raised %s; falling back", exc)
+            return []
+
+    @staticmethod
     def _split_paragraphs(text: str) -> list[str]:
         """Split on blank lines, dropping empty trailing chunks.
 
@@ -497,17 +542,7 @@ class IterativeHumanizer:
 
         cands_method = getattr(para_pass, "paraphrase_candidates", None)
         if callable(cands_method):
-            try:
-                # Pass everything the paraphrase agent might want to know.
-                candidates = cands_method(
-                    paragraph,
-                    n=n,
-                    seed=seed,
-                    style=style,
-                )
-            except Exception as exc:
-                logger.warning("paraphrase_candidates raised %s; falling back", exc)
-                candidates = []
+            candidates = self._call_candidates(cands_method, paragraph, n, seed, style)
             cleaned = [c for c in (candidates or []) if c and c.strip()]
             if cleaned:
                 return cleaned
