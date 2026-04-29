@@ -10,6 +10,7 @@ Reference: research/06_implementation_recommendations.md sections 1, 2, 9.
 from __future__ import annotations
 
 import logging
+import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -221,6 +222,14 @@ class HumanizationPipeline:
             applied_names.append(p.pass_name)
             total_changes += len(p.changes())
 
+        # v0.1.1 cleanup pass: fix a/an agreement broken by lexical/paraphrase
+        # substitutions. Without this we leave artifacts like "a integrated
+        # approach" which is itself a fluent-text tell humans never produce.
+        current_text = self._fix_a_an(current_text)
+
+        # v0.1.1 cleanup: collapse double spaces left by parens/em-dash passes.
+        current_text = re.sub(r"  +", " ", current_text)
+
         elapsed_total_ms = (time.perf_counter() - start) * 1000.0
 
         return HumanizeResult(
@@ -231,6 +240,36 @@ class HumanizationPipeline:
             pass_log=[self._record_to_dict(r) for r in records] if config.return_per_pass_log else [],
             warnings=warnings,
         )
+
+
+    @staticmethod
+    def _fix_a_an(text: str) -> str:
+        """Fix a/an article agreement after substitutions.
+
+        Rules:
+        - "a apple" -> "an apple"
+        - "an car"  -> "a car"
+        Honor case (A/An).
+        Skip when next "word" starts with a digit, hyphen, or other non-alpha.
+        v0.1.1 patch.
+        """
+        # a/an before vowel-initial word
+        def _fix_a(match: re.Match[str]) -> str:
+            article, sep, word = match.group(1), match.group(2), match.group(3)
+            new_article = "An" if article == "A" else "an"
+            return f"{new_article}{sep}{word}"
+
+        def _fix_an(match: re.Match[str]) -> str:
+            article, sep, word = match.group(1), match.group(2), match.group(3)
+            new_article = "A" if article == "An" else "a"
+            return f"{new_article}{sep}{word}"
+
+        # a -> an before vowel sound (rough heuristic; "u" can be "a" or "an"
+        # depending on the actual sound; default to vowel rule, accept some misses)
+        text = re.sub(r"\b(a|A)(\s+)([aeiouAEIOU]\w*)", _fix_a, text)
+        # an -> a before consonant
+        text = re.sub(r"\b(an|An)(\s+)([bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]\w*)", _fix_an, text)
+        return text
 
     def _load_style(self, style: str) -> Dict[str, Any]:
         if self._style_loader is not None:

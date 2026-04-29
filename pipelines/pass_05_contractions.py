@@ -113,18 +113,22 @@ class ContractionsPass(PipelinePass):
             keep_indices = set(range(len(matches)))
         elif density <= 0:
             return text
-        elif len(matches) == 1:
-            # singleton: probabilistic but deterministic via seed+match offset
+        else:
+            # v0.1.1: replaced the broken stride math (round(1/0.7)=1 -> stride=1
+            # -> 100% replacement at "balanced") with a per-match probabilistic
+            # keep using a deterministic hash seed. This produces the right
+            # average density at any value and avoids over-uniform contraction
+            # which is itself a stylometric tell.
             import hashlib
 
-            digest = hashlib.sha1(
-                f"{seed}:{pattern}:{matches[0].start()}".encode("utf-8")
-            ).digest()
-            roll = digest[0] / 256.0
-            keep_indices = {0} if roll < density else set()
-        else:
-            stride = max(1, int(round(1.0 / density)))
-            keep_indices = set(range(0, len(matches), stride))
+            keep_indices = set()
+            for i, m in enumerate(matches):
+                digest = hashlib.sha1(
+                    f"{seed}:{pattern}:{m.start()}:{i}".encode("utf-8")
+                ).digest()
+                roll = digest[0] / 256.0
+                if roll < density:
+                    keep_indices.add(i)
 
         out_parts: List[str] = []
         cursor = 0

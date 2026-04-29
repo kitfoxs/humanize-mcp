@@ -63,10 +63,20 @@ class EmDashPass(PipelinePass):
         return new_text
 
     def _replace_pairs(self, text: str, strategy: str) -> tuple[str, int]:
-        """Replace paired em dashes "X --- Y --- Z" with commas or parens."""
+        """Replace paired em dashes "X --- Y --- Z" with commas or parens.
 
-        # match: dash + content (no dash, no newline) + dash
-        pattern = re.compile(rf"{EM_DASH}\s*([^{EM_DASH}\n]+?)\s*{EM_DASH}")
+        v0.1.1 fix: require the inner content to not span a sentence boundary
+        (no period followed by space and capital letter). Otherwise the regex
+        was greedily pairing em dashes from different sentences and creating
+        unbalanced parentheses in the output.
+        """
+
+        # Inner content: no em dash, no newline, no sentence boundary.
+        # A sentence boundary is roughly: period (or ! or ?) + space + capital.
+        # We allow up to 200 chars of inner content (typical parenthetical length).
+        pattern = re.compile(
+            rf"{EM_DASH}\s*((?:(?![.!?]\s+[A-Z])[^{EM_DASH}\n]){{1,200}}?)\s*{EM_DASH}"
+        )
         toggle = {"i": 0}
 
         def _sub(match: re.Match[str]) -> str:

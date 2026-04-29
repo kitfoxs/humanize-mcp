@@ -54,6 +54,21 @@ class RhythmPass(PipelinePass):
     pass_name = "rhythm"
 
     def apply(self, text: str, config: Dict[str, Any]) -> str:
+        # v0.1.1 paragraph preservation: process each paragraph separately
+        # so we do not collapse double-newline separators (catastrophic
+        # for blogs/books). Wraps the original logic from _apply_one_paragraph.
+        if "\n" in text:
+            parts = re.split(r"(\n\s*\n)", text)
+            out_parts = []
+            for part in parts:
+                if part.strip() == "" or "\n" in part:
+                    out_parts.append(part)
+                else:
+                    out_parts.append(self._apply_one_paragraph(part, config))
+            return "".join(out_parts)
+        return self._apply_one_paragraph(text, config)
+
+    def _apply_one_paragraph(self, text: str, config: Dict[str, Any]) -> str:
         self.reset_changes()
         intensity = config.get("intensity", "balanced")
         target_cv = {

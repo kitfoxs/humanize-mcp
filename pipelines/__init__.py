@@ -55,4 +55,29 @@ __all__ = [
     "TellsDetector",
     "detect_tells",
     "summarize_tells",
+    "humanize",
+    "Pipeline",
 ]
+
+
+# v0.1.1: convenience shim so the benchmark runner (which probes for a
+# module-level `humanize` callable or a `Pipeline` class) can find the
+# pipeline. Without this the benchmark silently scored raw text only.
+def humanize(
+    text: str,
+    style: str = "blog",
+    intensity: str = "balanced",
+    **kwargs,
+) -> str:
+    """Convenience wrapper: humanize text with a single function call.
+
+    Equivalent to:
+        HumanizationPipeline().run(text, HumanizeConfig(style=style, intensity=intensity)).text
+    """
+    config = HumanizeConfig(style=style, intensity=intensity, **kwargs)
+    result = HumanizationPipeline().run(text, config)
+    return result.text
+
+
+# Back-compat alias used by the benchmark runner's pipeline probe.
+Pipeline = HumanizationPipeline
